@@ -1,0 +1,10 @@
+.bg-black {
+    background-color: #191919;
+    color: #BDBEC0 !important;
+}
+
+.list-group-item {
+    color: black;
+    margin-bottom: 1rem;
+    padding-left: 15px;
+}

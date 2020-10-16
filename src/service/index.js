@@ -15,19 +15,28 @@ export const call = async (
     path,
     headers,
     params,
+    pathIds,
     data,
     apiKey,
     apiSecret
 ) => {
-    let url = baseUrl + path
+    let url = baseUrl
+    if (pathIds) {
+        for (let i = 0; i  < pathIds.length; i++) {
+            path = path + `${pathIds[i]}/`
+        }
+    }
+    url = url + path;
     let timestamp = new Date().toISOString().substr(0, 19) + "+0000";
     let signature = calculateSignature(apiKey, apiSecret, path, data, timestamp);
 
+    console.log('url : ', url);
     console.log('apiKey : ', apiKey);
     console.log('apiSecret : ', apiSecret);
     console.log('timestamp : ', timestamp);
     console.log('signature : ', signature);
     console.log('path : ', path);
+    console.log('data : ', data);
 
     return axios(url, {
         method: method,

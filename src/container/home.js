@@ -6,30 +6,47 @@ import {hasAuthData, isNewChange, isSuccessResponse} from "../common/util";
 import Packages from "../component/packages";
 import {getPackages} from "../service/package";
 import {getAuthKeys, getAuthState} from "../selector/auth";
+import './home.css';
 
 class Home extends Component{
     constructor(props) {
         super(props);
         this.state = {
             name: 'Home',
-            errorData: null
+            errorData: null,
+            packages: null,
+            batchSize: 3,
+            page: 1,
+            loading: false
         }
     }
 
     componentDidMount() {
         const {keys} = this.props;
-        console.log('Keys: ', keys);
+        const {batchSize} = this.state;
         if (hasAuthData(keys)) {
-            getPackages(keys.apiKey, keys.apiSecret)
-                .then(data => {
-                    console.log('Packages: ', data)
-                    if (isSuccessResponse(data.data)) {
-                        this.setState({errorData: null});
+            this.setState({loading: true});
+            getPackages(keys.apiKey, keys.apiSecret, batchSize)
+                .then(res => {
+                    if (isSuccessResponse(res.data)) {
+                        this.setState({errorData: null, packages: res.data.packages, loading: false});
                     } else {
-                        this.setState({errorData: data.data});
+                        this.setState({errorData: res.data, loading: false});
                     }
-                })
+                }).catch(err => {
+                    this.setState({errorData: err, loading: false});
+            })
         }
+        // Detect when scrolled to bottom.
+        this.refs.myscroll.addEventListener("scroll", () => {
+            console.log('home event')
+            if (
+                this.refs.myscroll.scrollTop + this.refs.myscroll.clientHeight >=
+                this.refs.myscroll.scrollHeight
+            ) {
+                this.handleLoadMoreEvent();
+            }
+        });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -44,15 +61,49 @@ class Home extends Component{
         this.props.deleteAuthKeys();
     }
 
+    handleLoadMoreEvent =  () => {
+        console.log('handleLoadMoreEvent');
+        const {keys} = this.props;
+        const {packages, batchSize} = this.state;
+        if (hasAuthData(keys)) {
+            this.setState({loading: true});
+            getPackages(keys.apiKey, keys.apiSecret, packages.length + batchSize)
+                .then(res => {
+                    if (isSuccessResponse(res.data)) {
+                        this.setState({errorData: null, packages: [...res.data.packages], loading: false});
+                    } else {
+                        this.setState({errorData: res.data, loading: false});
+                    }
+                }).catch(err => {
+                    this.setState({errorData: err, loading: false});
+            })
+        }
+    }
+
+    handlePackageDelete = (pkgId) => {
+        const newPackages = this.state.packages.filter(pkg => pkg.packageId !== pkgId);
+        this.setState({packages: newPackages, errorData: null});
+    }
+
+    handleErrorEvent = (err) => {
+        this.setState({errorData: err});
+    }
+
     render() {
-        const {name, packages, errorData} = this.state;
+        const {name, packages, errorData, items} = this.state;
         return (
-            <div>
+            <div className="container-scroll mt-5" ref="myscroll">
                 <Navbar onLogout={this.logout} page={name}/>
-                {errorData ? <div className="alert alert-danger d-flex justify-content-around" role="alert">
+                { errorData && <div className="alert alert-danger d-flex justify-content-around" role="alert">
                     {errorData.message}
-                </div>
-                    : <Packages packages={packages} />}
+                </div> }
+                <Packages
+                    items={items}
+                    packages={packages}
+                    loadMoreEvent={this.handleLoadMoreEvent}
+                    deletePackageEvent={this.handlePackageDelete}
+                    errorEvent={this.handleErrorEvent}
+                />
             </div>
         );
     }

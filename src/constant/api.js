@@ -1,6 +1,6 @@
 export const SEND_SAFELY = {
     BASE_URL: 'https://app.sendsafely.com',
-    BASE_URL_DEMO: 'https://demo.sendsafely.com/api/v2.0',
+    BASE_URL_DEMO: 'https://demo.sendsafely.com',
     HEADERS: {
         BASE: {
             // 'Connection': 'keep-alive',
@@ -14,7 +14,8 @@ export const SEND_SAFELY = {
         },
     },
     PATH: {
-        PACKAGE: '/package/',
+        GET_PACKAGE: '/api/v2.0/package/',
+        DELETE_PACKAGE: '/api/v2.0/package/',
         GENERATE_KEY: '/auth-api/generate-key/'
     }
 }

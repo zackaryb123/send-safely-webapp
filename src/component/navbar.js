@@ -21,7 +21,7 @@ class Navbar extends Component{
     render() {
         const {page} = this.props;
         return (
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+            <nav className="fixed-top navbar navbar-expand-lg navbar-light bg-light">
                 <a href="#" className="navbar-brand">
                     <img src="https://www.sendsafely.com/img/ss_logo_dark_60_343.png" width="30" height="30"
                          className="d-inline-block align-top logo" alt="" loading="lazy"/>
@@ -34,12 +34,6 @@ class Navbar extends Component{
                 {page && page === 'Home' &&
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav">
-                        {/*<li className="nav-item active">*/}
-                        {/*    <a href="#" className="nav-link">Home <span className="sr-only">(current)</span></a>*/}
-                        {/*</li>*/}
-                        {/*<li className="nav-item">*/}
-                        {/*    <a href="#" className="nav-link">Features</a>*/}
-                        {/*</li>*/}
                         <li className="nav-item">
                             <a onClick={this.logout} href="#" className="nav-link" tabIndex="-1" aria-disabled="true">Logout</a>
                         </li>

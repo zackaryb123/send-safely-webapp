@@ -1,6 +1,7 @@
 // This is the function you want to use
 export function calculateSignature(apiKey, apiSecret, path, body, timestamp){
     let data = apiKey + path + timestamp + body;
+    console.log('calculateSignature : ', data);
 
     let hmacFunction = new sjcl.misc.hmac(sjcl.codec.utf8String.toBits(apiSecret), sjcl.hash.sha256); // Key, Hash
     return sjcl.codec.hex.fromBits(hmacFunction.encrypt(data));

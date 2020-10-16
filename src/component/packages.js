@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import './navbar.css'
+import './package.css'
+import {hasAuthData, isSuccessResponse} from "../common/util";
+import {deletePackage} from "../service/package";
+import {getAuthKeys} from "../selector/auth";
 
 class Packages extends Component{
     constructor(props) {
@@ -11,38 +14,71 @@ class Packages extends Component{
     }
 
     componentDidMount() {
+        // Detect when scrolled to bottom.
+        // this.refs.myscrolls.addEventListener("scroll", () => {
+        //     console.log('package event')
+        //     if (
+        //         this.refs.myscrolls.scrollTop + this.refs.myscrolls.clientHeight >=
+        //         this.refs.myscrolls.scrollHeight
+        //     ) {
+        //         this.loadMore();
+        //     }
+        // });
+    }
+
+    loadMore() {
+        // this.props.loadMoreEvent(true)
+    }
+
+    deletePackage(packageId) {
+        const {keys} = this.props;
+        console.log(keys);
+        if (hasAuthData(keys)) {
+            deletePackage(keys.apiKey, keys.apiSecret, packageId)
+                .then(res => {
+                    if (isSuccessResponse(res.data)) {
+                        this.props.deletePackageEvent(packageId);
+                    } else {
+                        this.props.errorEvent(res.data);
+                    }
+                }).catch(err => {
+                    this.props.errorEvent(err);
+            })
+        }
     }
 
     render() {
         const {packages} = this.props;
         return (
-            <div className="list-group">
+            <div ref="myscrolls" className="list-group container">
                 { packages && packages.map(pkg =>
-                    <a href="#" className="list-group-item list-group-item-action active">
+                    <li id={pkg.packageId} className="list-group-item bg-black">
                         <div className="d-flex w-100 justify-content-between">
                             <h5 className="mb-1">{pkg.packageUserName}</h5>
-                            <small>pkg.packageUpdateTimestamp</small>
+                            <small>{pkg.packageUpdateTimestamp}</small>
                         </div>
-                        <p>Files:</p>
+                        <p>Files :</p>
                         <ul className="list-group">
-                            { pkg.filenames && pkg.filenames.map(file =>
-                                <li className="list-group-item d-flex justify-content-between align-items-center">
+                            { pkg.filenames && pkg.filenames.map((file, i) =>
+                                <li id={pkg.packageId + 'f' + i} className="list-group-item d-flex justify-content-between align-items-center">
                                     {file}
                                 </li> )}
                         </ul>
-                        <ul className="list-group list-group-flush">
-                            { pkg.recipients && pkg.recipients.map(recipient =>
-                                <li className="list-group-item">{recipient}</li>
+                        <p>Recipients :</p>
+                        <ul className="list-group">
+                            { pkg.recipients && pkg.recipients.map((recipient, i) =>
+                                <li id={pkg.packageId + 'r' + i} className="list-group-item">{recipient}</li>
                             )}
                         </ul>
-                    </a> )}
+                        <button onClick={() => this.deletePackage(pkg.packageId)} type="button" className="btn btn-danger">Delete</button>
+                    </li> )}
             </div>
         );
     }
 }
 
 const mapStateToProps = state => ({
-    // auth: getAuthState(state)
+    keys: getAuthKeys(state)
 });
 
 export default connect(mapStateToProps,
