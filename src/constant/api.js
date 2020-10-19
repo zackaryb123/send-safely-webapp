@@ -15,6 +15,7 @@ export const SEND_SAFELY = {
     },
     PATH: {
         GET_PACKAGE: '/api/v2.0/package/',
+        GET_RECEIVED_PACKAGE: '/api/v2.0/package/received/',
         DELETE_PACKAGE: '/api/v2.0/package/',
         GENERATE_KEY: '/auth-api/generate-key/'
     }

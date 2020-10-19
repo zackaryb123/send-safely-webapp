@@ -14,20 +14,9 @@ class Packages extends Component{
     }
 
     componentDidMount() {
-        // Detect when scrolled to bottom.
-        // this.refs.myscrolls.addEventListener("scroll", () => {
-        //     console.log('package event')
-        //     if (
-        //         this.refs.myscrolls.scrollTop + this.refs.myscrolls.clientHeight >=
-        //         this.refs.myscrolls.scrollHeight
-        //     ) {
-        //         this.loadMore();
-        //     }
-        // });
     }
 
     loadMore() {
-        // this.props.loadMoreEvent(true)
     }
 
     deletePackage(packageId) {

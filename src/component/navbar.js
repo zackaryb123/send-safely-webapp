@@ -18,6 +18,10 @@ class Navbar extends Component{
         this.props.onLogout();
     }
 
+    tabNavigate(e) {
+        this.props.handleTabNavigate(e);
+    }
+
     render() {
         const {page} = this.props;
         return (
@@ -34,6 +38,12 @@ class Navbar extends Component{
                 {page && page === 'Home' &&
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav">
+                        <li className="nav-item">
+                            <a onClick={() => this.tabNavigate('SENT')} href="#" className="nav-link" tabIndex="-1" name="SENT" aria-disabled="true">Sent</a>
+                        </li>
+                        <li className="nav-item">
+                            <a onClick={() => this.tabNavigate('RECEIVED')} href="#" className="nav-link" tabIndex="-1" name="RECEIVED" aria-disabled="true">Received</a>
+                        </li>
                         <li className="nav-item">
                             <a onClick={this.logout} href="#" className="nav-link" tabIndex="-1" aria-disabled="true">Logout</a>
                         </li>

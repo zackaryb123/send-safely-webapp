@@ -4,7 +4,7 @@ import Navbar from "../component/navbar";
 import {deleteAuthKeys} from "../action/auth";
 import {hasAuthData, isNewChange, isSuccessResponse} from "../common/util";
 import Packages from "../component/packages";
-import {getPackages} from "../service/package";
+import {getReceivedPackages, getSentPackages} from "../service/package";
 import {getAuthKeys, getAuthState} from "../selector/auth";
 import './home.css';
 
@@ -16,30 +16,22 @@ class Home extends Component{
             errorData: null,
             packages: null,
             batchSize: 3,
-            page: 1,
+            page: 'SENT',
+            row: 1,
             loading: false
         }
     }
 
     componentDidMount() {
         const {keys} = this.props;
-        const {batchSize} = this.state;
+        const {batchSize, row} = this.state;
         if (hasAuthData(keys)) {
             this.setState({loading: true});
-            getPackages(keys.apiKey, keys.apiSecret, batchSize)
-                .then(res => {
-                    if (isSuccessResponse(res.data)) {
-                        this.setState({errorData: null, packages: res.data.packages, loading: false});
-                    } else {
-                        this.setState({errorData: res.data, loading: false});
-                    }
-                }).catch(err => {
-                    this.setState({errorData: err, loading: false});
-            })
+            const pageSize = batchSize;
+            this.fetchSentPackages(keys, row, batchSize, pageSize);
         }
         // Detect when scrolled to bottom.
         this.refs.myscroll.addEventListener("scroll", () => {
-            console.log('home event')
             if (
                 this.refs.myscroll.scrollTop + this.refs.myscroll.clientHeight >=
                 this.refs.myscroll.scrollHeight
@@ -55,6 +47,17 @@ class Home extends Component{
                 this.props.history.push('/');
             }
         }
+        if (isNewChange(prevState.page, this.state.page)) {
+            const {keys} = this.props;
+            const {page, loading, packages, batchSize, row} = this.state;
+            if (page === 'SENT') {
+                const pageSize = packages ? packages.length + batchSize : batchSize;
+                return this.fetchSentPackages(keys, row, batchSize, pageSize);
+           } else {
+                const pageSize = packages ? packages.length + batchSize : batchSize;
+                return this.fetchReceivedPackages(keys, row, batchSize, pageSize);
+           }
+        }
     }
 
     logout = () => {
@@ -62,21 +65,17 @@ class Home extends Component{
     }
 
     handleLoadMoreEvent =  () => {
-        console.log('handleLoadMoreEvent');
         const {keys} = this.props;
-        const {packages, batchSize} = this.state;
-        if (hasAuthData(keys)) {
+        const {page, loading, packages, batchSize, row} = this.state;
+        if (hasAuthData(keys) && !loading) {
             this.setState({loading: true});
-            getPackages(keys.apiKey, keys.apiSecret, packages.length + batchSize)
-                .then(res => {
-                    if (isSuccessResponse(res.data)) {
-                        this.setState({errorData: null, packages: [...res.data.packages], loading: false});
-                    } else {
-                        this.setState({errorData: res.data, loading: false});
-                    }
-                }).catch(err => {
-                    this.setState({errorData: err, loading: false});
-            })
+            if (page === 'SENT') {
+                const pageSize = packages ? packages.length + batchSize : batchSize;
+                return this.fetchSentPackages(keys, row, batchSize, pageSize);
+            } else {
+                const pageSize = packages ? packages.length + batchSize : batchSize;
+                return this.fetchReceivedPackages(keys, row, batchSize, pageSize);
+            }
         }
     }
 
@@ -89,11 +88,54 @@ class Home extends Component{
         this.setState({errorData: err});
     }
 
+    handleTabNavigate = (e) => {
+        this.setState({page: e, row: 1, packages: null})
+
+    }
+
+    fetchSentPackages(keys, row, batchSize, pageSize) {
+        return getSentPackages(keys.apiKey, keys.apiSecret, null, pageSize)
+            // getSentPackages(keys.apiKey, keys.apiSecret, row, batchSize)
+            .then(res => {
+                if (isSuccessResponse(res.data)) {
+                    this.setState({
+                        errorData: null,
+                        packages: [...res.data.packages], row: row + batchSize, loading: false
+                    });
+                } else {
+                    this.setState({errorData: res.data, loading: false});
+                }
+            }).catch(err => {
+            this.setState({errorData: err, loading: false});
+        })
+    }
+
+    fetchReceivedPackages(keys, row, batchSize, pageSize) {
+        return getReceivedPackages(keys.apiKey, keys.apiSecret, null, pageSize)
+            // getSentPackages(keys.apiKey, keys.apiSecret, row, batchSize)
+            .then(res => {
+                if (isSuccessResponse(res.data)) {
+                    this.setState({
+                        errorData: null,
+                        packages: [...res.data.packages], row: row + batchSize, loading: false
+                    });
+                } else {
+                    this.setState({errorData: res.data, loading: false});
+                }
+            }).catch(err => {
+            this.setState({errorData: err, loading: false});
+        })
+    }
+
     render() {
         const {name, packages, errorData, items} = this.state;
         return (
             <div className="container-scroll mt-5" ref="myscroll">
-                <Navbar onLogout={this.logout} page={name}/>
+                <Navbar
+                    handleTabNavigate={this.handleTabNavigate}
+                    onLogout={this.logout}
+                    page={name}
+                />
                 { errorData && <div className="alert alert-danger d-flex justify-content-around" role="alert">
                     {errorData.message}
                 </div> }
