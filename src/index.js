@@ -21,14 +21,14 @@ ReactDOM.render(
       <Provider store={redux.default().store}>
           <PersistGate loading={null} persistor={redux.default().persistor}>
               <Shell>
-                  <Router basename={'/'}>
-                      <div className="App">
-                          <Switch>
-                              <Route path={'/home'} exact component={Home} />
-                              <Route path={'/'} exact component={Login} />
-                          </Switch>
-                      </div>
-                  </Router>
+                  {/*<Router basename={'/'}>*/}
+                  {/*    <div className="App">*/}
+                  {/*        <Switch>*/}
+                  {/*            <Route path={'/home'} exact component={Home} />*/}
+                  {/*            <Route path={'/'} exact component={Login} />*/}
+                  {/*        </Switch>*/}
+                  {/*    </div>*/}
+                  {/*</Router>*/}
               </Shell>
           </PersistGate>
       </Provider>

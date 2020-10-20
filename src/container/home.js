@@ -44,7 +44,7 @@ class Home extends Component{
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (isNewChange(prevProps.auth, this.props.auth)) {
             if (this.props.auth.apiKey == null && this.props.auth.apiSecret == null) {
-                this.props.history.push('/');
+                // this.props.history.push('/');
             }
         }
         if (isNewChange(prevState.page, this.state.page)) {

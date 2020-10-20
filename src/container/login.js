@@ -20,7 +20,7 @@ class Login extends Component{
     componentDidMount() {
         let {keys} = this.props;
         if (hasAuthData(keys)) {
-            this.props.history.push('/home/');
+            // this.props.history.push('/home/');
         }
     }
 
@@ -31,7 +31,7 @@ class Login extends Component{
                     if (isSuccessResponse(auth.data)) {
                         this.props.setAuthKeys(auth.data.apiKey, auth.data.apiSecret);
                         this.setState({errorData: null});
-                        this.props.history.push('/home/');
+                        // this.props.history.push('/home/');
                     } else {
                         this.setState({errorData: auth.data});
                     }
